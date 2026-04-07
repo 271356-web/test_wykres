@@ -10,45 +10,45 @@ file_path = "dane/wynik_1m.txt"
 
 if os.path.exists(file_path):
     try:
-        # DODANO: on_bad_lines='skip' oraz engine='python'
-        # To pominie wiersze, które mają "zepsutą" liczbę kolumn
-        df = pd.read_csv(
-            file_path, 
-            sep=r'\s+', 
-            header=None, 
-            on_bad_lines='skip', 
-            engine='python'
-        )
+        # Wczytujemy plik linia po linii, żeby uniknąć błędów parsera
+        with open(file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
         
-        # Sprawdzamy czy udało się wczytać jakiekolwiek dane
+        data = []
+        for line in lines:
+            # Rozdzielamy linię na maksymalnie 6 części (5 kolumn danych + 1 nazwa)
+            # To sprawi, że nawet jeśli w nazwie są spacje, zostaną w jednej kolumnie
+            parts = line.strip().split(maxsplit=5)
+            if len(parts) >= 5:
+                data.append(parts)
+        
+        df = pd.DataFrame(data)
+        
+        # Konwertujemy kolumny liczbowe na liczby (bo po split są tekstami)
+        for col in df.columns[:5]:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+
         if df.empty:
-            st.warning("Plik jest pusty lub nie zawiera czytelnych danych.")
+            st.warning("Nie udało się sparsować danych.")
         else:
-            # Automatyczne nazwanie kolumn
             df.columns = [f"Col_{i}" for i in range(len(df.columns))]
             
-            # Tworzenie wykresu
-            # Upewnij się, że Twój plik ma co najmniej 5 kolumn (indeks 4)
-            # Jeśli kolumn jest mniej, zmień Col_4 na np. Col_1
-            x_col = "Col_4" if len(df.columns) > 4 else df.columns[-1]
-            y_col = "Col_0"
-            
+            # Wykres (B to Col_4, G to Col_0)
             fig = px.scatter(
                 df, 
-                x=x_col, 
-                y=y_col, 
+                x="Col_4", 
+                y="Col_0", 
                 log_y=True,
-                title=f"Wykres: {y_col} vs {x_col}",
-                labels={x_col: "Oś X (B)", y_col: "Oś Y (Gravity)"},
+                hover_data=["Col_5"], # Tutaj będzie Twoja nazwa ze spacjami
+                title="Wykres z obsługą spacji w nazwach",
                 template="plotly_white"
             )
-
             st.plotly_chart(fig, use_container_width=True)
             
-            if st.checkbox("Pokaż surowe dane"):
+            if st.checkbox("Pokaż tabelę danych"):
                 st.write(df)
-                
+
     except Exception as e:
-        st.error(f"Błąd podczas czytania pliku: {e}")
+        st.error(f"Błąd: {e}")
 else:
     st.error(f"Nie znaleziono pliku: {file_path}")
