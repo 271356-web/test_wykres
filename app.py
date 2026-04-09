@@ -47,7 +47,7 @@ for nazwa in scenariusze.keys():
     if st.sidebar.checkbox(nazwa, value=(nazwa == "Scenariusz 1 (1m)")):
         wybrane_scenariusze.append(nazwa)
 
-# 3. Funkcja do bezpiecznego wczytywania danych (twoja sprawdzona metoda)
+# 3. Poprawiona funkcja do wczytywania danych
 def load_data(file_path):
     if os.path.exists(file_path):
         try:
@@ -55,12 +55,13 @@ def load_data(file_path):
                 lines = f.readlines()
             data = []
             for line in lines:
-                parts = line.strip().split(maxsplit=5)
-                if len(parts) >= 5:
+                parts = line.strip().split() # Usuwamy maxsplit, by brać wszystko
+                if len(parts) >= 2: # Zmieniamy na minimum 2 kolumny (dla X i Y)
                     data.append(parts)
+            
             df = pd.DataFrame(data)
-            # Konwersja na liczby dla pierwszych 5 kolumn
-            for col in df.columns[:5]:
+            # Konwersja dostępnych kolumn na liczby
+            for col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors='coerce')
             return df
         except Exception as e:
@@ -74,31 +75,30 @@ if not wybrane_scenariusze:
     st.warning("Zaznacz co najmniej jeden scenariusz w panelu bocznym.")
 else:
     for nazwa in wybrane_scenariusze:
-        sciezka = scenariusze[nazwa]
-        df = load_data(sciezka)
-        if df is not None:
-            # Dodajemy serię danych do wykresu
+        # --- 1. Dane główne (punkty) ---
+        df_points = load_data(scenariusze[nazwa])
+        if df_points is not None:
             fig.add_trace(go.Scatter(
-                x=df[4], # Kolumna B
-                y=df[0], # Kolumna G
+                x=df_points[4], # Kolumna B
+                y=df_points[0], # Kolumna G
                 mode='markers',
-                name=nazwa,
+                name=f"{nazwa} (punkty)",
                 marker=dict(opacity=0.6),
-                hovertext=df[5] if len(df.columns) > 5 else "" # Nazwa ze spacjami
+                hovertext=df_points[5] if len(df_points.columns) > 5 else ""
             ))
-        sciezka = Krzywe_mid[nazwa]
-        df = load_data(sciezka)
-        if df is not None:
-            # Dodajemy serię danych do wykresu
+        
+        # --- 2. Krzywa Mid (linia) ---
+        df_mid = load_data(Krzywe_mid[nazwa])
+        if df_mid is not None:
             fig.add_trace(go.Scatter(
-                x=df[0], # Kolumna B
-                y=df[1], # Kolumna G
-                mode='markers',
-                name=nazwa,
-                marker=dict(opacity=0.6),
-                hovertext=df[5] if len(df.columns) > 5 else "" # Nazwa ze spacjami
+                x=df_mid[0], # X dla krzywej
+                y=df_mid[1], # Y dla krzywej
+                mode='lines', # Krzywe lepiej rysować linią
+                name=f"{nazwa} (krzywa mid)",
+                line=dict(dash='solid') # Możesz użyć 'dash', 'dot' itp.
             ))
-    # Konfiguracja osi i wyglądu
+            
+    # Konfiguracja osi
     fig.update_layout(
         xaxis_title="B [m]",
         yaxis_title="Gravity multiplier [-]",
@@ -107,7 +107,6 @@ else:
         height=700,
         hovermode="closest"
     )
-
     st.plotly_chart(fig, use_container_width=True)
 
 # 5. Opcjonalnie: podgląd tabelaryczny dla zaznaczonych danych
