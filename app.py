@@ -84,38 +84,47 @@ if not wybrane_scenariusze:
     st.warning("Zaznacz co najmniej jeden scenariusz w panelu bocznym.")
 else:
     for nazwa in wybrane_scenariusze:
-        # --- 1. Dane główne (punkty) ---
-        df_points = load_data(scenariusze[nazwa])
-        if df_points is not None:
+        # --- CZĘŚĆ A: PUNKTY (Główny scenariusz) ---
+        sciezka_pkt = scenariusze[nazwa]
+        df_pkt = load_data(sciezka_pkt)
+        
+        if df_pkt is not None and not df_pkt.empty:
             fig.add_trace(go.Scatter(
-                x=df_points[4], # Kolumna B
-                y=df_points[0], # Kolumna G
+                x=df_pkt[4], # Kolumna B (indeks 4)
+                y=df_pkt[0], # Kolumna G (indeks 0)
                 mode='markers',
-                name=f"{nazwa} (punkty)",
-                marker=dict(opacity=0.6),
-                hovertext=df_points[5] if len(df_points.columns) > 5 else ""
+                name=f"{nazwa} (scenariusz)",
+                marker=dict(opacity=0.6, size=8),
+                hovertext=df_pkt[5] if len(df_pkt.columns) > 5 else ""
             ))
         
-        # --- 2. Krzywa Mid (linia) ---
-        df_mid = load_data(Krzywe_mid[nazwa])
-        if df_mid is not None:
+        # --- CZĘŚĆ B: KRZYWA (Mid Curve) ---
+        sciezka_mid = Krzywe_mid[nazwa]
+        df_mid = load_data(sciezka_mid)
+        
+        # Sprawdzamy czy dane istnieją i mają co najmniej 2 kolumny (0 i 1)
+        if df_mid is not None and len(df_mid.columns) >= 2:
             fig.add_trace(go.Scatter(
                 x=df_mid[0], # X dla krzywej
                 y=df_mid[1], # Y dla krzywej
-                mode='lines', # Krzywe lepiej rysować linią
-                name=f"{nazwa} (krzywa mid)",
-                line=dict(dash='solid') # Możesz użyć 'dash', 'dot' itp.
+                mode='lines', # Rysujemy jako linię
+                name=f"{nazwa} (krzywa MID)",
+                line=dict(width=2)
             ))
-            
-    # Konfiguracja osi
+        elif df_mid is not None:
+            st.sidebar.error(f"Plik {sciezka_mid} ma za mało kolumn!")
+
+    # Konfiguracja osi i wyglądu (poza pętlą)
     fig.update_layout(
         xaxis_title="B [m]",
         yaxis_title="Gravity multiplier [-]",
         yaxis_type="log",
         template="plotly_white",
         height=700,
-        hovermode="closest"
+        hovermode="closest",
+        legend=dict(groupclick="togglegroup") # Opcjonalne: ułatwia klikanie w legendę
     )
+
     st.plotly_chart(fig, use_container_width=True)
 
 # 5. Opcjonalnie: podgląd tabelaryczny dla zaznaczonych danych
