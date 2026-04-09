@@ -40,12 +40,21 @@ Krzywe_down = {
     "Scenariusz 5 (5m SB)": "dane/down_curve_5m_sb.txt",
     "Scenariusz 6 (10m SB)": "dane/down_curve_10m_sb.txt"
 }
-# 2. Tworzenie checkboxów w panelu bocznym
-st.sidebar.header("Wybierz scenariusze")
-wybrane_scenariusze = []
-for nazwa in scenariusze.keys():
-    if st.sidebar.checkbox(nazwa, value=(nazwa == "Scenariusz 1 (1m)")):
-        wybrane_scenariusze.append(nazwa)
+# --- 2. Krzywa Mid (linia) ---
+        df_mid = load_data(Krzywe_mid[nazwa])
+        
+        # Sprawdzamy czy df istnieje i czy ma jakiekolwiek kolumny/wiersze
+        if df_mid is not None and not df_mid.empty:
+            try:
+                fig.add_trace(go.Scatter(
+                    x=df_mid[0], 
+                    y=df_mid[1], 
+                    mode='lines',
+                    name=f"{nazwa} (krzywa mid)",
+                    line=dict(dash='solid')
+                ))
+            except KeyError:
+                st.sidebar.warning(f"Plik {Krzywe_mid[nazwa]} ma niewłaściwy format (brak kolumn 0 i 1).")
 
 # 3. Poprawiona funkcja do wczytywania danych
 def load_data(file_path):
