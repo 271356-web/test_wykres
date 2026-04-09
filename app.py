@@ -71,14 +71,17 @@ else:
             ))
         
         # --- CZĘŚĆ B: KRZYWA (Mid Curve) ---
-        df_mid = load_data(Krzywe_mid[nazwa])
+        df_mid = load_data(sciezka_mid)
         if df_mid is not None and len(df_mid.columns) >= 2:
+            # Filtrujemy wartości <= 0 dla skali logarytmicznej
+            df_mid_filtered = df_mid[df_mid[1] > 0] 
+            
             fig.add_trace(go.Scatter(
-                x=df_mid[0], 
-                y=df_mid[1], 
+                x=df_mid_filtered[0], 
+                y=df_mid_filtered[1], 
                 mode='lines',
                 name=f"{nazwa} (krzywa MID)",
-                line=dict(width=2)
+                line=dict(width=3, color='red') # Daj czerwony kolor, żeby była widoczna
             ))
 
     fig.update_layout(
