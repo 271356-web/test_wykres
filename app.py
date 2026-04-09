@@ -58,30 +58,29 @@ if not wybrane_scenariusze:
     st.warning("Zaznacz co najmniej jeden scenariusz w panelu bocznym.")
 else:
     for nazwa in wybrane_scenariusze:
-        # --- CZĘŚĆ A: PUNKTY (Główny scenariusz) ---
-        df_pkt = load_data(scenariusze[nazwa])
-        if df_pkt is not None and not df_pkt.empty:
+        # 1. Punkty
+        s_pkt = scenariusze[nazwa]
+        d_pkt = load_data(s_pkt)
+        if d_pkt is not None and not d_pkt.empty:
             fig.add_trace(go.Scatter(
-                x=df_pkt[4] if 4 in df_pkt.columns else df_pkt[0], 
-                y=df_pkt[0], 
+                x=d_pkt[4] if 4 in d_pkt.columns else d_pkt[0], 
+                y=d_pkt[0], 
                 mode='markers',
-                name=f"{nazwa} (punkty)",
-                marker=dict(opacity=0.6),
-                hovertext=df_pkt[5] if len(df_pkt.columns) > 5 else ""
+                name=f"{nazwa} (punkty)"
             ))
         
-        # --- CZĘŚĆ B: KRZYWA (Mid Curve) ---
-        df_mid = load_data(sciezka_mid)
-        if df_mid is not None and len(df_mid.columns) >= 2:
-            # Filtrujemy wartości <= 0 dla skali logarytmicznej
-            df_mid_filtered = df_mid[df_mid[1] > 0] 
-            
+        # 2. Krzywa
+        s_mid = Krzywe_mid[nazwa]
+        d_mid = load_data(s_mid)
+        if d_mid is not None and len(d_mid.columns) >= 2:
+            # Filtr dla skali logarytmicznej (tylko wartości > 0)
+            d_mid_plot = d_mid[d_mid[1] > 0] 
             fig.add_trace(go.Scatter(
-                x=df_mid_filtered[0], 
-                y=df_mid_filtered[1], 
+                x=d_mid_plot[0], 
+                y=d_mid_plot[1], 
                 mode='lines',
                 name=f"{nazwa} (krzywa MID)",
-                line=dict(width=3, color='red') # Daj czerwony kolor, żeby była widoczna
+                line=dict(width=3)
             ))
 
     fig.update_layout(
@@ -89,10 +88,8 @@ else:
         yaxis_title="Gravity multiplier [-]",
         yaxis_type="log",
         template="plotly_white",
-        height=700,
-        hovermode="closest"
+        height=700
     )
-
     st.plotly_chart(fig, use_container_width=True)
 
 # 5. Podgląd tabelaryczny
