@@ -16,7 +16,30 @@ scenariusze = {
     "Scenariusz 5 (5m SB)": "dane/wynik_5m_sb.txt",
     "Scenariusz 6 (10m SB)": "dane/wynik_10m_sb.txt"
 }
-
+Krzywe_mid = {
+    "Scenariusz 1 (1m)": "dane/mid_curve_1m_mc.txt",
+    "Scenariusz 2 (5m)": "dane/mid_curve_5m_mc.txt",
+    "Scenariusz 3 (10m)": "dane/mid_curve_10m_mc.txt",
+    "Scenariusz 4 (1m SB)": "dane/mid_curve_1m_sb.txt",
+    "Scenariusz 5 (5m SB)": "dane/mid_curve_5m_sb.txt",
+    "Scenariusz 6 (10m SB)": "dane/mid_curve_10m_sb.txt"
+}
+Krzywe_up = {
+    "Scenariusz 1 (1m)": "dane/up_curve_1m_mc.txt",
+    "Scenariusz 2 (5m)": "dane/up_curve_5m_mc.txt",
+    "Scenariusz 3 (10m)": "dane/up_curve_10m_mc.txt",
+    "Scenariusz 4 (1m SB)": "dane/up_curve_1m_sb.txt",
+    "Scenariusz 5 (5m SB)": "dane/up_curve_5m_sb.txt",
+    "Scenariusz 6 (10m SB)": "dane/up_curve_10m_sb.txt"
+}
+Krzywe_down = {
+    "Scenariusz 1 (1m)": "dane/down_curve_1m_mc.txt",
+    "Scenariusz 2 (5m)": "dane/down_curve_5m_mc.txt",
+    "Scenariusz 3 (10m)": "dane/down_curve_10m_mc.txt",
+    "Scenariusz 4 (1m SB)": "dane/down_curve_1m_sb.txt",
+    "Scenariusz 5 (5m SB)": "dane/down_curve_5m_sb.txt",
+    "Scenariusz 6 (10m SB)": "dane/down_curve_10m_sb.txt"
+}
 # 2. Tworzenie checkboxów w panelu bocznym
 st.sidebar.header("Wybierz scenariusze")
 wybrane_scenariusze = []
@@ -53,7 +76,6 @@ else:
     for nazwa in wybrane_scenariusze:
         sciezka = scenariusze[nazwa]
         df = load_data(sciezka)
-        
         if df is not None:
             # Dodajemy serię danych do wykresu
             fig.add_trace(go.Scatter(
@@ -64,7 +86,18 @@ else:
                 marker=dict(opacity=0.6),
                 hovertext=df[5] if len(df.columns) > 5 else "" # Nazwa ze spacjami
             ))
-
+        sciezka = Krzywe_mid[nazwa]
+        df = load_data(sciezka)
+        if df is not None:
+            # Dodajemy serię danych do wykresu
+            fig.add_trace(go.Scatter(
+                x=df[0], # Kolumna B
+                y=df[1], # Kolumna G
+                mode='markers',
+                name=nazwa,
+                marker=dict(opacity=0.6),
+                hovertext=df[5] if len(df.columns) > 5 else "" # Nazwa ze spacjami
+            ))
     # Konfiguracja osi i wyglądu
     fig.update_layout(
         xaxis_title="B [m]",
