@@ -23,7 +23,22 @@ Krzywe_mid = {
     "Scenariusz 5 (5m SB)": "dane/mid_curve_5m_sb.txt",
     "Scenariusz 6 (10m SB)": "dane/mid_curve_10m_sb.txt"
 }
-
+Krzywe_up = {
+    "Scenariusz 1 (1m)": "dane/up_curve_1m_mc.txt",
+    "Scenariusz 2 (5m)": "dane/up_curve_5m_mc.txt",
+    "Scenariusz 3 (10m)": "dane/up_curve_10m_mc.txt",
+    "Scenariusz 4 (1m SB)": "dane/up_curve_1m_sb.txt",
+    "Scenariusz 5 (5m SB)": "dane/up_curve_5m_sb.txt",
+    "Scenariusz 6 (10m SB)": "dane/up_curve_10m_sb.txt"
+}
+Krzywe_down = {
+    "Scenariusz 1 (1m)": "dane/down_curve_1m_mc.txt",
+    "Scenariusz 2 (5m)": "dane/down_curve_5m_mc.txt",
+    "Scenariusz 3 (10m)": "dane/down_curve_10m_mc.txt",
+    "Scenariusz 4 (1m SB)": "dane/down_curve_1m_sb.txt",
+    "Scenariusz 5 (5m SB)": "dane/down_curve_5m_sb.txt",
+    "Scenariusz 6 (10m SB)": "dane/down_curve_10m_sb.txt"
+}
 # 2. Sidebar
 st.sidebar.header("Wybierz scenariusze")
 wybrane_scenariusze = [n for n in scenariusze.keys() if st.sidebar.checkbox(n, value=(n == "Scenariusz 1 (1m)"))]
@@ -87,6 +102,28 @@ else:
         
         # --- KRZYWA (Mid) ---
         df_m = load_data(Krzywe_mid[nazwa])
+        if df_m is not None:
+            df_m = df_m.sort_values(by=0)
+            df_m_plot = df_m[df_m[1] > 0] # Filtr dla skali log
+            fig.add_trace(go.Scatter(
+                x=df_m_plot[0], y=df_m_plot[1],
+                mode='lines',
+                name=f"{nazwa} (MID)",
+                line=dict(width=3)
+            ))
+        # --- KRZYWA (Down) ---
+        df_m = load_data(Krzywe_down[nazwa])
+        if df_m is not None:
+            df_m = df_m.sort_values(by=0)
+            df_m_plot = df_m[df_m[1] > 0] # Filtr dla skali log
+            fig.add_trace(go.Scatter(
+                x=df_m_plot[0], y=df_m_plot[1],
+                mode='lines',
+                name=f"{nazwa} (MID)",
+                line=dict(width=3)
+            ))
+        # --- KRZYWA (Up) ---
+        df_m = load_data(Krzywe_up[nazwa])
         if df_m is not None:
             df_m = df_m.sort_values(by=0)
             df_m_plot = df_m[df_m[1] > 0] # Filtr dla skali log
