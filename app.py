@@ -3,10 +3,10 @@ import pandas as pd
 import plotly.graph_objects as go
 import os
 
-st.set_page_config(layout="wide", page_title="Gravity Analysis - Scenariusze")
+st.set_page_config(layout="wide", page_title="Gravity Analysis")
 st.title("Analiza porównawcza scenariuszy")
 
-# 1. Definicja scenariuszy i ścieżek do plików
+# 1. Ścieżki do plików
 scenariusze = {
     "Scenariusz 1 (1m)": "dane/wynik_1m.txt",
     "Scenariusz 2 (5m)": "dane/wynik_5m.txt",
@@ -24,96 +24,84 @@ Krzywe_mid = {
     "Scenariusz 6 (10m SB)": "dane/mid_curve_10m_sb.txt"
 }
 
-# 2. Tworzenie checkboxów w panelu bocznym
+# 2. Sidebar
 st.sidebar.header("Wybierz scenariusze")
-wybrane_scenariusze = []
-for nazwa in scenariusze.keys():
-    if st.sidebar.checkbox(nazwa, value=(nazwa == "Scenariusz 1 (1m)")):
-        wybrane_scenariusze.append(nazwa)
+wybrane_scenariusze = [n for n in scenariusze.keys() if st.sidebar.checkbox(n, value=(n == "Scenariusz 1 (1m)"))]
 
-# 3. Funkcja do inteligentnego wczytywania danych
+# 3. Inteligentna funkcja wczytywania
 def load_data(file_path):
     if not os.path.exists(file_path):
         return None
     try:
-        # Podejrzyj pierwszą linię, żeby sprawdzić separator
         with open(file_path, 'r', encoding='utf-8') as f:
-            first_line = f.readline()
+            lines = f.readlines()
         
-        # Jeśli w pliku jest przecinek, to CSV. Jeśli nie, to spacje/taby.
-        sep = ',' if ',' in first_line else r'\s+'
+        data = []
+        for line in lines:
+            line = line.strip()
+            if not line: continue
+            
+            # Sprawdzamy separator: jeśli jest przecinek, to CSV (krzywe)
+            if ',' in line:
+                parts = line.split(',')
+            else:
+                # Pliki wynikowe: 4 kolumny liczb + reszta to nazwa
+                # split(None, 5) dzieli na maksymalnie 6 części (indeksy 0-5)
+                parts = line.split(None, 5)
+            
+            if len(parts) >= 2:
+                data.append(parts)
         
-        # Wczytanie pliku
-        df = pd.read_csv(file_path, sep=sep, header=None, engine='python')
+        df = pd.DataFrame(data)
         
-        # Konwersja na liczby i usunięcie pustych wierszy/nieliczbowych danych
-        df = df.apply(pd.to_numeric, errors='coerce').dropna()
+        # Konwersja kolumn na liczby (tylko te, które się da)
+        for col in df.columns:
+            converted = pd.to_numeric(df[col], errors='coerce')
+            if not converted.isna().all(): # Jeśli kolumna zawiera liczby
+                df[col] = converted
         
-        return df if not df.empty else None
+        return df.dropna(subset=[df.columns[0]]) # Usuwamy wiersze bez pierwszej liczby
     except Exception as e:
-        st.sidebar.error(f"Błąd w pliku {file_path}: {e}")
+        st.sidebar.error(f"Błąd w {file_path}: {e}")
         return None
 
-# 4. Budowanie wykresu
+# 4. Wykres
 fig = go.Figure()
 
 if not wybrane_scenariusze:
-    st.warning("Zaznacz co najmniej jeden scenariusz w panelu bocznym.")
+    st.warning("Zaznacz scenariusz w panelu bocznym.")
 else:
     for nazwa in wybrane_scenariusze:
-        # --- CZĘŚĆ A: PUNKTY (Separator: Spacje) ---
-        df_pkt = load_data(scenariusze[nazwa])
-        if df_pkt is not None:
-            # Używamy kolumny 4 (B) jako X i kolumny 0 (G) jako Y
+        # --- PUNKTY (Wyniki) ---
+        df_p = load_data(scenariusze[nazwa])
+        if df_p is not None:
+            # Twoja struktura: x=kolumna 4 (B), y=kolumna 0 (G)
+            # Jeśli nazwa ma spacje, będzie w kolumnie 5
             fig.add_trace(go.Scatter(
-                x=df_pkt[4] if 4 in df_pkt.columns else df_pkt[0],
-                y=df_pkt[0],
+                x=df_p[4] if 4 in df_p.columns else df_p[0],
+                y=df_p[0],
                 mode='markers',
-                name=f"{nazwa} (punkty)",
-                marker=dict(opacity=0.6, size=8),
-                hovertext=df_pkt[5] if len(df_pkt.columns) > 5 else ""
+                name=f"{nazwa} (Pkt)",
+                hovertext=df_p[5] if 5 in df_p.columns else ""
             ))
         
-        # --- CZĘŚĆ B: KRZYWA MID (Separator: Przecinki) ---
-        df_mid = load_data(Krzywe_mid[nazwa])
-        if df_mid is not None and len(df_mid.columns) >= 2:
-            # Sortujemy po osi X (kolumna 0), żeby linia nie skakała
-            df_mid = df_mid.sort_values(by=0)
-            
-            # Filtr dla skali logarytmicznej (usuwamy wartości Y <= 0)
-            df_mid_plot = df_mid[df_mid[1] > 0]
-            
+        # --- KRZYWA (Mid) ---
+        df_m = load_data(Krzywe_mid[nazwa])
+        if df_m is not None:
+            df_m = df_m.sort_values(by=0)
+            df_m_plot = df_m[df_m[1] > 0] # Filtr dla skali log
             fig.add_trace(go.Scatter(
-                x=df_mid_plot[0],
-                y=df_mid_plot[1],
+                x=df_m_plot[0], y=df_m_plot[1],
                 mode='lines',
-                name=f"{nazwa} (krzywa MID)",
+                name=f"{nazwa} (MID)",
                 line=dict(width=3)
             ))
-        elif df_mid is None:
-            st.sidebar.warning(f"Nie znaleziono pliku krzywej dla: {nazwa}")
 
-    # Konfiguracja osi i wyglądu
     fig.update_layout(
         xaxis_title="B [m]",
         yaxis_title="Gravity multiplier [-]",
         yaxis_type="log",
         template="plotly_white",
-        height=700,
-        hovermode="closest",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+        height=700
     )
-
     st.plotly_chart(fig, use_container_width=True)
-
-# 5. Podgląd danych (opcjonalnie)
-if st.checkbox("Pokaż tabele danych (Debug)"):
-    for nazwa in wybrane_scenariusze:
-        st.write(f"### {nazwa}")
-        c1, c2 = st.columns(2)
-        with c1:
-            st.write("Punkty (Spacje):")
-            st.dataframe(load_data(scenariusze[nazwa]).head(5) if load_data(scenariusze[nazwa]) is not None else "Brak")
-        with c2:
-            st.write("Krzywa (Przecinki):")
-            st.dataframe(load_data(Krzywe_mid[nazwa]).head(5) if load_data(Krzywe_mid[nazwa]) is not None else "Brak")
