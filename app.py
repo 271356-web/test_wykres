@@ -98,8 +98,8 @@ else:
                 mode='markers',
                 name=f"{nazwa} (Pkt)",
                 marker=dict(
-                    size=10,        
-                    opacity=0.6,     
+                    size=5,        
+                    opacity=1,     
                 ),
                 hovertext=df_p[5] if 5 in df_p.columns else ""
             ))
