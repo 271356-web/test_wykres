@@ -134,7 +134,7 @@ else:
                 x=df_m_plot[0], y=df_m_plot[1],
                 mode='lines',
                 name=f"{nazwa} (MID)",
-                line=dict(width=2, color='black')
+                line=dict(width=1.5, color='black')
             ))
 
     fig.update_layout(
