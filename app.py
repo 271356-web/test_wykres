@@ -112,7 +112,7 @@ else:
                 x=df_m_plot[0], y=df_m_plot[1],
                 mode='lines',
                 name=f"{nazwa} (MID)",
-                line=dict(width=2, color='black')
+                line=dict(width=1.5, color='black')
             ))
         # --- KRZYWA (Down) ---
         df_m = load_data(Krzywe_down[nazwa])
@@ -123,7 +123,7 @@ else:
                 x=df_m_plot[0], y=df_m_plot[1],
                 mode='lines',
                 name=f"{nazwa} (MID)",
-                line=dict(width=2, color='black')
+                line=dict(width=1.5, color='black')
             ))
         # --- KRZYWA (Up) ---
         df_m = load_data(Krzywe_up[nazwa])
