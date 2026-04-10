@@ -122,7 +122,7 @@ else:
             fig.add_trace(go.Scatter(
                 x=df_m_plot[0], y=df_m_plot[1],
                 mode='lines',
-                name=f"{nazwa} (MID)",
+                name=f"{nazwa} (DOWN)",
                 line=dict(width=1.5, color='black')
             ))
         # --- KRZYWA (Up) ---
@@ -133,7 +133,7 @@ else:
             fig.add_trace(go.Scatter(
                 x=df_m_plot[0], y=df_m_plot[1],
                 mode='lines',
-                name=f"{nazwa} (MID)",
+                name=f"{nazwa} (UP)",
                 line=dict(width=1.5, color='black')
             ))
 
