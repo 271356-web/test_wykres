@@ -114,7 +114,7 @@ else:
             if df_k is not None:
                 try:
                     # Próba wyciągnięcia numeru profilu z opisu
-                    p_idx = int(float(row_desc)) - 1
+                    p_idx = int(float(row_desc)) 
                     # Zakładamy profil 0 -> kolumny 0,1 | profil 1 -> kolumny 2,3
                     cx, cy = 2 * p_idx, 2 * p_idx + 1
                     
