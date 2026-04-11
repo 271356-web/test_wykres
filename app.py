@@ -170,11 +170,15 @@ else:
                         line=dict(color='firebrick')
                     ))
                     sub.update_layout(
-                        height=300, 
+                        height=400, # warto nieco zwiększyć wysokość, jeśli osie mają być równe
                         margin=dict(l=20, r=20, t=40, b=20),
                         title=f"Geometria profilu nr {row_desc}",
-                        xaxis_title="Odległość",
-                        yaxis_title="Wartość"
+                        xaxis_title="Odległość [m]",
+                        yaxis_title="Wartość [m]",
+                        yaxis=dict(
+                        scaleanchor="x",
+                        scaleratio=1,
+                        )
                     )
                     st.plotly_chart(sub, use_container_width=True)
                 else:
