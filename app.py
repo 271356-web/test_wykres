@@ -161,7 +161,7 @@ else:
                 # Wykres profilu geometrycznego
                 x_prof, y_prof = get_profile_data("dane_kord.txt", row_nr)
                 
-               if x_prof is not None and y_prof is not None:
+            if x_prof is not None and y_prof is not None:
                     # 1. Tworzymy wykres
                     sub = go.Figure()
                     sub.add_trace(go.Scatter(
