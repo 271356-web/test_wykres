@@ -25,31 +25,58 @@ def load_data(file_path):
 
 def get_profile_data(file_path, row_idx):
     if not os.path.exists(file_path):
+        st.error(f"Nie znaleziono pliku: {file_path}")
         return None, None
     try:
-        # 1. Wczytujemy dane (używamy NumPy, bo działa jak readmatrix w MATLABie)
-        # To automatycznie pominie teksty, jeśli są w nagłówku
         import numpy as np
+        import plotly.graph_objects as go
+        
+        # 1. Wczytujemy dane (NumPy genfromtxt radzi sobie z brakującymi danymi lepiej)
         dane = np.genfromtxt(file_path, delimiter=',')
         
-        # 2. Logika indeksowania (MATLAB row*2 to w Pythonie row*2 - 1)
-        # Zakładając, że MATLAB-owe row=1 ma dać kolumny 2 i 3:
-        # W Pythonie to będą indeksy 1 i 2.
+        # 2. Konwersja row_idx na liczbę (zabezpieczenie przed tekstem)
+        try:
+            p_idx = int(float(str(row_idx).strip()))
+        except ValueError:
+            st.error(f"Błąd: '{row_idx}' nie jest poprawnym numerem profilu!")
+            return None, None
         
-        # UWAGA: W MATLABIE row*2 przy row=1 to kolumna 2.
-        # W Pythonie indeks 1 to druga kolumna.
-        # Musimy odjąć 1 od Twojego wzoru, aby zachować tę samą logikę.
-        
-        p_idx = int(float(str(row_idx).strip()))
-        
-        cx = (p_idx * 2) 
+        # 3. Logika kolumn (Poprawiona: MATLAB vs Python)
+        # Jeśli MATLAB row 1 -> kolumny 2 i 3, to w Pythonie indeksy 1 i 2
+        cx = (p_idx * 2) - 1
         cy = (p_idx * 2)
         
-        # Wyciągamy kolumny (wszystkie wiersze)
+        # Sprawdzenie zakresu kolumn
+        if cy >= dane.shape[1]:
+            st.warning(f"Indeks {cy} poza zakresem (plik ma {dane.shape[1]} kolumn)")
+            return None, None
+
+        # 4. Wyciągamy dane
         x = dane[:, cx]
         y = dane[:, cy]
         
+        # --- WYPLOTOWANIE WEWNĄTRZ FUNKCJI ---
+        fig_mini = go.Figure()
+        fig_mini.add_trace(go.Scatter(
+            x=x, y=y, 
+            mode='lines+markers', 
+            line=dict(color='red'),
+            name=f"Profil {p_idx}"
+        ))
+        fig_mini.update_layout(
+            title=f"Podgląd profilu (Indeks: {p_idx})",
+            xaxis_title="X",
+            yaxis_title="Y",
+            height=300,
+            margin=dict(l=20, r=20, t=40, b=20)
+        )
+        
+        # Wyświetlamy wykres w Streamlit
+        st.plotly_chart(fig_mini, use_container_width=True)
+        # -------------------------------------
+        
         return x, y
+
     except Exception as e:
         st.error(f"Błąd przy czytaniu kordów: {e}")
         return None, None
