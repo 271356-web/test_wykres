@@ -25,38 +25,26 @@ def load_data(file_path):
 
 def get_profile_data(file_path, row_desc):
     if not os.path.exists(file_path):
-        st.error(f"Plik {file_path} nie istnieje!")
         return None, None
-    
     try:
-        df_k = pd.read_csv(file_path, sep=',', header=None, engine='python')
+        # Wczytujemy z header=0, żeby nazwy były kluczami kolumn
+        df_k = pd.read_csv(file_path, sep=',', header=0, engine='python')
         
-        # --- ROZWIĄZANIE BŁĘDU KONWERSJI ---
-        # Sprawdzamy, czy row_desc to na pewno liczba
-        clean_desc = str(row_desc).strip()
+        target_name = str(row_desc).strip()
         
-        try:
-            p_idx = int(float(clean_desc))
-        except ValueError:
-            # Jeśli to tekst (np. 'PT.AZR.15...'), nie możemy wyliczyć cx, cy
-            st.error(f"Otrzymano tekst zamiast numeru profilu: '{clean_desc}'")
-            st.info("Sprawdź, czy w pliku wynikowym kolumna 6 zawiera numer (0, 1, 2...), a nie nazwę.")
-            return None, None
-
-        cx, cy = 2 * p_idx, 2 * p_idx + 1
-        
-        # --- POPRAWKA IF/ELSE (zamiast try/else) ---
-        if cx in df_k.columns and cy in df_k.columns:
-            st.write(f"Wyciągam dane z kolumn: {cx} oraz {cy}")
-            x = df_k[cx]
-            y = df_k[cy]
+        if target_name in df_k.columns:
+            # Pobieramy indeks kolumny o tej nazwie
+            idx = df_k.columns.get_loc(target_name)
+            # x to ta kolumna, y to kolumna obok niej
+            x = df_k.iloc[:, idx]
+            y = df_k.iloc[:, idx + 1]
             return x, y
         else:
-            st.error(f"Plik kordów ma tylko {len(df_k.columns)} kolumn. Indeksy {cx}/{cy} są poza zakresem.")
+            # Jeśli nie ma idealnego dopasowania, wypisz błąd dla debugowania
+            st.error(f"Nie znaleziono kolumny '{target_name}' w {df_k.columns.tolist()}")
             return None, None
-
     except Exception as e:
-        st.error(f"Błąd krytyczny wewnątrz funkcji: {e}")
+        st.error(f"Błąd: {e}")
         return None, None
 
 # --- 3. DEFINICJA SCENARIUSZY I ŚCIEŻEK ---
