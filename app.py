@@ -43,8 +43,8 @@ def get_profile_data(file_path, row_idx):
         
         # 3. Logika kolumn (Poprawiona: MATLAB vs Python)
         # Jeśli MATLAB row 1 -> kolumny 2 i 3, to w Pythonie indeksy 1 i 2
-        cx = (p_idx * 2) 
-        cy = (p_idx * 2)+1
+        cx = (p_idx * 2) -2
+        cy = (p_idx * 2) -1
         
         # Sprawdzenie zakresu kolumn
         if cy >= dane.shape[1]:
