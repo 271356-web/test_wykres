@@ -28,6 +28,8 @@ def get_profile_data(file_path, row_desc):
         return None, None
     try:
         df_k = pd.read_csv(file_path, sep=',', header=None, engine='python')
+        st.write("### Podgląd df_k wewnątrz funkcji:")
+        st.dataframe(df_k.head())
         
         # Konwersja opisu na liczbę
         p_idx = int(float(str(row_desc).strip()))
