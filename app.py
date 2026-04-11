@@ -34,7 +34,7 @@ def get_profile_data(file_path, row_desc):
         st.write(f"Kolumna X (indeks {cx})")
         st.write(f"Kolumna Y (indeks {cy})")
         x = df_k[cx]
-            y = df_k[cy]
+        y = df_k[cy]
             return x, y
         else:
             st.error(f"Nie znaleziono kolumn {cx} i {cy} w pliku kordów.")
