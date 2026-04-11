@@ -104,6 +104,7 @@ else:
                     x=x_val[mask], 
                     y=y_val[mask],
                     mode='markers',
+                    marker=dict(size=1),
                     name=f"{nazwa} (Pkt)",
                     customdata=list(zip(df_p['orig_row_index'][mask], info_val[mask])),
                     hovertemplate="B: %{x}<br>Y: %{y}<br>Row: %{customdata[0]}<extra></extra>"
