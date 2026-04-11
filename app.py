@@ -157,8 +157,6 @@ def load_data(file_path):
 
         return None
 
-# ... (Sekcje 1, 2 i 3 pozostają bez zmian - wczytywanie danych) ...
-
 # 4. Wykres
 fig = go.Figure()
 
