@@ -158,10 +158,10 @@ else:
                 c1.metric("B [m] (Oś X)", f"{point['x']:.2f}")
                 c2.metric("Multiplier (Oś Y)", f"{point['y']:.4e}")
 
-                # Wykres profilu geometrycznego
-                x_prof, y_prof = get_profile_data("dane_kord.txt", row_nr)
+ # Wykres profilu geometrycznego
+                x_prof, y_prof = get_profile_data("dane_kord.txt", row_desc)
                 
-            if x_prof is not None and y_prof is not None:
+                if x_prof is not None and y_prof is not None:
                     # 1. Tworzymy wykres
                     sub = go.Figure()
                     sub.add_trace(go.Scatter(
