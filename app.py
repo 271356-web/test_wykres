@@ -23,7 +23,7 @@ def load_data(file_path):
         st.error(f"Błąd pliku {file_path}: {e}")
         return None
 
-def get_profile_data(file_path, row_idx)):
+def get_profile_data(file_path, row_idx):
     if not os.path.exists(file_path):
         return None, None
     try:
