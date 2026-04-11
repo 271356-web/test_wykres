@@ -9,17 +9,68 @@ st.title("Analiza porównawcza scenariuszy")
 
 # 1. Ścieżki do plików
 scenariusze = {
+
     "Scenariusz 1 (1m)": "dane/wynik_1m.txt",
+
     "Scenariusz 2 (5m)": "dane/wynik_5m.txt",
+
     "Scenariusz 3 (10m)": "dane/wynik_10m.txt",
+
     "Scenariusz 4 (1m SB)": "dane/wynik_1m_sb.txt",
+
     "Scenariusz 5 (5m SB)": "dane/wynik_5m_sb.txt",
+
     "Scenariusz 6 (10m SB)": "dane/wynik_10m_sb.txt"
+
 }
 
-Krzywe_mid = {k: v.replace('wynik_', 'mid_curve_').replace('.txt', '_mc.txt') for k, v in scenariusze.items()}
-# (Możesz ręcznie zdefiniować słowniki krzywych tak jak w Twoim kodzie, jeśli nazewnictwo jest inne)
+Krzywe_mid = {
 
+    "Scenariusz 1 (1m)": "dane/mid_curve_1m_mc.txt",
+
+    "Scenariusz 2 (5m)": "dane/mid_curve_5m_mc.txt",
+
+    "Scenariusz 3 (10m)": "dane/mid_curve_10m_mc.txt",
+
+    "Scenariusz 4 (1m SB)": "dane/mid_curve_1m_sb.txt",
+
+    "Scenariusz 5 (5m SB)": "dane/mid_curve_5m_sb.txt",
+
+    "Scenariusz 6 (10m SB)": "dane/mid_curve_10m_sb.txt"
+
+}
+
+Krzywe_up = {
+
+    "Scenariusz 1 (1m)": "dane/up_curve_1m_mc.txt",
+
+    "Scenariusz 2 (5m)": "dane/up_curve_5m_mc.txt",
+
+    "Scenariusz 3 (10m)": "dane/up_curve_10m_mc.txt",
+
+    "Scenariusz 4 (1m SB)": "dane/up_curve_1m_sb.txt",
+
+    "Scenariusz 5 (5m SB)": "dane/up_curve_5m_sb.txt",
+
+    "Scenariusz 6 (10m SB)": "dane/up_curve_10m_sb.txt"
+
+}
+
+Krzywe_down = {
+
+    "Scenariusz 1 (1m)": "dane/down_curve_1m_mc.txt",
+
+    "Scenariusz 2 (5m)": "dane/down_curve_5m_mc.txt",
+
+    "Scenariusz 3 (10m)": "dane/down_curve_10m_mc.txt",
+
+    "Scenariusz 4 (1m SB)": "dane/down_curve_1m_sb.txt",
+
+    "Scenariusz 5 (5m SB)": "dane/down_curve_5m_sb.txt",
+
+    "Scenariusz 6 (10m SB)": "dane/down_curve_10m_sb.txt"
+
+}
 # 2. Sidebar - Wybór scenariuszy
 st.sidebar.header("Wybierz scenariusze")
 wybrane_scenariusze = []
