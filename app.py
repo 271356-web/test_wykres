@@ -23,28 +23,35 @@ def load_data(file_path):
         st.error(f"Błąd pliku {file_path}: {e}")
         return None
 
-def get_profile_data(file_path, row_desc):
+def get_profile_data(file_path, row_idx)):
     if not os.path.exists(file_path):
         return None, None
     try:
-        # Wczytujemy z header=0, żeby nazwy były kluczami kolumn
-        df_k = pd.read_csv(file_path, sep=',', header=0, engine='python')
+        # 1. Wczytujemy dane (używamy NumPy, bo działa jak readmatrix w MATLABie)
+        # To automatycznie pominie teksty, jeśli są w nagłówku
+        import numpy as np
+        dane = np.genfromtxt(file_path, delimiter=',')
         
-        target_name = str(row_desc).strip()
+        # 2. Logika indeksowania (MATLAB row*2 to w Pythonie row*2 - 1)
+        # Zakładając, że MATLAB-owe row=1 ma dać kolumny 2 i 3:
+        # W Pythonie to będą indeksy 1 i 2.
         
-        if target_name in df_k.columns:
-            # Pobieramy indeks kolumny o tej nazwie
-            idx = df_k.columns.get_loc(target_name)
-            # x to ta kolumna, y to kolumna obok niej
-            x = df_k.iloc[:, idx]
-            y = df_k.iloc[:, idx + 1]
-            return x, y
-        else:
-            # Jeśli nie ma idealnego dopasowania, wypisz błąd dla debugowania
-            st.error(f"Nie znaleziono kolumny '{target_name}' w {df_k.columns.tolist()}")
-            return None, None
+        # UWAGA: W MATLABIE row*2 przy row=1 to kolumna 2.
+        # W Pythonie indeks 1 to druga kolumna.
+        # Musimy odjąć 1 od Twojego wzoru, aby zachować tę samą logikę.
+        
+        p_idx = int(row_idx)
+        
+        cx = (p_idx * 2) - 1
+        cy = (p_idx * 2)
+        
+        # Wyciągamy kolumny (wszystkie wiersze)
+        x = dane[:, cx]
+        y = dane[:, cy]
+        
+        return x, y
     except Exception as e:
-        st.error(f"Błąd: {e}")
+        st.error(f"Błąd przy czytaniu kordów: {e}")
         return None, None
 
 # --- 3. DEFINICJA SCENARIUSZY I ŚCIEŻEK ---
