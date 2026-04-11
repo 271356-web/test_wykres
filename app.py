@@ -9,68 +9,19 @@ st.title("Analiza porównawcza scenariuszy")
 
 # 1. Ścieżki do plików
 scenariusze = {
-
     "Scenariusz 1 (1m)": "dane/wynik_1m.txt",
-
     "Scenariusz 2 (5m)": "dane/wynik_5m.txt",
-
     "Scenariusz 3 (10m)": "dane/wynik_10m.txt",
-
     "Scenariusz 4 (1m SB)": "dane/wynik_1m_sb.txt",
-
     "Scenariusz 5 (5m SB)": "dane/wynik_5m_sb.txt",
-
     "Scenariusz 6 (10m SB)": "dane/wynik_10m_sb.txt"
-
 }
+Krzywe_mid = {k: v.replace('wynik_', 'mid_curve_').replace('.txt', '_mc.txt') for k, v in scenariusze.items()}
+Krzywe_up = {k: v.replace('wynik_', 'up_curve_').replace('.txt', '_mc.txt') for k, v in scenariusze.items()}
+Krzywe_down = {k: v.replace('wynik_', 'down_curve_').replace('.txt', '_mc.txt') for k, v in scenariusze.items()}
 
-Krzywe_mid = {
+# Uwaga: Jeśli Twoje pliki krzywych mają inne nazwy, użyj swoich oryginalnych słowników Krzywe_mid, up, down.
 
-    "Scenariusz 1 (1m)": "dane/mid_curve_1m_mc.txt",
-
-    "Scenariusz 2 (5m)": "dane/mid_curve_5m_mc.txt",
-
-    "Scenariusz 3 (10m)": "dane/mid_curve_10m_mc.txt",
-
-    "Scenariusz 4 (1m SB)": "dane/mid_curve_1m_sb.txt",
-
-    "Scenariusz 5 (5m SB)": "dane/mid_curve_5m_sb.txt",
-
-    "Scenariusz 6 (10m SB)": "dane/mid_curve_10m_sb.txt"
-
-}
-
-Krzywe_up = {
-
-    "Scenariusz 1 (1m)": "dane/up_curve_1m_mc.txt",
-
-    "Scenariusz 2 (5m)": "dane/up_curve_5m_mc.txt",
-
-    "Scenariusz 3 (10m)": "dane/up_curve_10m_mc.txt",
-
-    "Scenariusz 4 (1m SB)": "dane/up_curve_1m_sb.txt",
-
-    "Scenariusz 5 (5m SB)": "dane/up_curve_5m_sb.txt",
-
-    "Scenariusz 6 (10m SB)": "dane/up_curve_10m_sb.txt"
-
-}
-
-Krzywe_down = {
-
-    "Scenariusz 1 (1m)": "dane/down_curve_1m_mc.txt",
-
-    "Scenariusz 2 (5m)": "dane/down_curve_5m_mc.txt",
-
-    "Scenariusz 3 (10m)": "dane/down_curve_10m_mc.txt",
-
-    "Scenariusz 4 (1m SB)": "dane/down_curve_1m_sb.txt",
-
-    "Scenariusz 5 (5m SB)": "dane/down_curve_5m_sb.txt",
-
-    "Scenariusz 6 (10m SB)": "dane/down_curve_10m_sb.txt"
-
-}
 # 2. Sidebar - Wybór scenariuszy
 st.sidebar.header("Wybierz scenariusze")
 wybrane_scenariusze = []
@@ -78,7 +29,7 @@ for n in scenariusze.keys():
     if st.sidebar.checkbox(n, value=(n == "Scenariusz 1 (1m)")):
         wybrane_scenariusze.append(n)
 
-# 3. Funkcja wczytywania danych z zachowaniem numeru wiersza
+# 3. Funkcja wczytywania danych
 def load_data(file_path):
     if not os.path.exists(file_path):
         return None
@@ -101,15 +52,12 @@ def load_data(file_path):
                 data.append(parts)
         
         df = pd.DataFrame(data)
-        
-        # Konwersja na liczby tam gdzie się da
         for col in df.columns:
             converted = pd.to_numeric(df[col], errors='coerce')
             if not converted.isna().all():
                 df[col] = converted
         return df
     except Exception as e:
-        st.sidebar.error(f"Błąd w {file_path}: {e}")
         return None
 
 # --- 4. GŁÓWNA LOGIKA WYKRESU ---
@@ -119,26 +67,41 @@ else:
     fig = go.Figure()
 
     for nazwa in wybrane_scenariusze:
-        # --- PUNKTY ---
+        # --- 4a. PUNKTY (Wyniki) ---
         df_p = load_data(scenariusze[nazwa])
         if df_p is not None:
-            # Kolumny po dodaniu numeru wiersza na początku:
-            # [0] - Nr wiersza, [1] - G (Y), [5] - B (X), [6] - Nazwa/Info
-            
-            y_val = df_p[1]
-            x_val = df_p[5] if 5 in df_p.columns else df_p[1]
+            # Po modyfikacji load_data: [0]=Nr wiersza, [1]=Y, [5]=X, [6]=Info
+            x_idx = 5 if 5 in df_p.columns else 1
+            y_idx = 1
             txt_info = df_p[6] if 6 in df_p.columns else ""
             
             fig.add_trace(go.Scatter(
-                x=x_val,
-                y=y_val,
+                x=df_p[x_idx], y=df_p[y_idx],
                 mode='markers',
-                name=f"{nazwa}",
+                name=f"{nazwa} (Pkt)",
                 marker=dict(size=6),
-                # Przekazujemy numer wiersza i info do customdata
                 customdata=pd.concat([df_p[0], txt_info], axis=1),
                 hovertemplate="B: %{x}<br>Y: %{y}<extra></extra>"
             ))
+
+        # --- 4b. FUNKCJA POMOCNICZA DLA KRZYWYCH ---
+        def add_curve(file_dict, label_suffix, color):
+            df_c = load_data(file_dict[nazwa])
+            if df_c is not None:
+                # Krzywe CSV zazwyczaj mają: [0]=Nr wiersza, [1]=X, [2]=Y
+                df_c = df_c.sort_values(by=1)
+                df_c_plot = df_c[df_c[2] > 0] # Filtr dla logarytmu
+                fig.add_trace(go.Scatter(
+                    x=df_c_plot[1], y=df_c_plot[2],
+                    mode='lines',
+                    name=f"{nazwa} ({label_suffix})",
+                    line=dict(width=1.5, color=color),
+                    hoverinfo='skip' # Krzywe nie przeszkadzają w klikaniu punktów
+                ))
+
+        add_curve(Krzywe_mid, "MID", "black")
+        add_curve(Krzywe_up, "UP", "gray")
+        add_curve(Krzywe_down, "DOWN", "gray")
 
     fig.update_layout(
         xaxis_title="B [m]",
@@ -149,30 +112,29 @@ else:
         clickmode='event+select'
     )
 
-    # Rysowanie wykresu i przechwycenie kliknięcia
+    # Rysowanie wykresu
     selected_data = st.plotly_chart(fig, use_container_width=True, on_select="rerun")
 
     # --- 5. WYŚWIETLANIE DANYCH PO KLIKNIĘCIU ---
-    # Ta sekcja musi być wewnątrz 'else', żeby widzieć 'selected_data'
     if selected_data and "selection" in selected_data and len(selected_data["selection"]["points"]) > 0:
         st.markdown("---")
         st.subheader("🔍 Szczegóły wybranego punktu")
         
         for point in selected_data["selection"]["points"]:
-            # Pobieramy dane z customdata (zdefiniowane w fig.add_trace)
-            row_nr = point['customdata'][0]
-            row_desc = point['customdata'][1]
-            
-            c1, c2, c3 = st.columns(3)
-            with c1:
-                st.metric("Numer wiersza (TXT)", int(row_nr))
-            with c2:
-                st.metric("Współrzędna B (X)", f"{point['x']:.4f}")
-            with c3:
-                st.metric("Multiplier (Y)", f"{point['y']:.4e}")
-            
-            if row_desc:
-                st.info(f"**Informacja z pliku:** {row_desc}")
-            st.divider()
+            if 'customdata' in point:
+                row_nr = point['customdata'][0]
+                row_desc = point['customdata'][1]
+                
+                c1, c2, c3 = st.columns(3)
+                with c1:
+                    st.metric("Numer wiersza (TXT)", int(row_nr))
+                with c2:
+                    st.metric("Współrzędna B (X)", f"{point['x']:.4f}")
+                with c3:
+                    st.metric("Multiplier (Y)", f"{point['y']:.4e}")
+                
+                if row_desc:
+                    st.info(f"**Informacja z pliku:** {row_desc}")
+                st.divider()
     else:
         st.info("💡 Kliknij punkt na wykresie, aby zobaczyć jego lokalizację w pliku źródłowym.")
