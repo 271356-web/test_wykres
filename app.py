@@ -36,7 +36,7 @@ def get_profile_data(file_path, row_idx):
         
         # 2. Konwersja row_idx na liczbę (zabezpieczenie przed tekstem)
         try:
-            p_idx = int(float(str(row_idx).strip()))
+            p_idx = int(float(str(row_idx).strip()))-2
         except ValueError:
             st.error(f"Błąd: '{row_idx}' nie jest poprawnym numerem profilu!")
             return None, None
