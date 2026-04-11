@@ -26,6 +26,7 @@ def load_data(file_path):
 def get_profile_data(file_path, row_desc):
     """Wczytuje współrzędne profilu na podstawie indeksu z kolumny 6."""
     if not os.path.exists(file_path):
+        st.info(f"Nie widzi")
         return None, None
     try:
         # Wczytujemy plik kordów (można dodać cache, jeśli plik jest duży)
