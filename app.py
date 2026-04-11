@@ -161,25 +161,34 @@ else:
                 # Wykres profilu geometrycznego
                 x_prof, y_prof = get_profile_data("dane_kord.txt", row_nr)
                 
-                if x_prof is not None and y_prof is not None:
+               if x_prof is not None and y_prof is not None:
+                    # 1. Tworzymy wykres
                     sub = go.Figure()
                     sub.add_trace(go.Scatter(
                         x=x_prof, 
                         y=y_prof, 
                         mode='lines+markers', 
-                        line=dict(color='firebrick')
+                        line=dict(color='firebrick'),
+                        name="Profil"
                     ))
                     sub.update_layout(
-                        height=400, # warto nieco zwiększyć wysokość, jeśli osie mają być równe
-                        margin=dict(l=20, r=20, t=40, b=20),
-                        title=f"Geometria profilu nr {row_desc}",
+                        height=500, 
+                        template="plotly_white",
+                        title=f"Geometria profilu nr {row_desc} (Skala 1:1)",
                         xaxis_title="Odległość [m]",
                         yaxis_title="Wartość [m]",
-                        yaxis=dict(
-                        scaleanchor="x",
-                        scaleratio=1,
-                        )
+                        yaxis=dict(scaleanchor="x", scaleratio=1)
                     )
                     st.plotly_chart(sub, use_container_width=True)
+
+                    # 2. DODAJEMY TABELĘ PUNKTÓW
+                    with st.expander("Pokaż tabelę współrzędnych profilu"):
+                        # Tworzymy DataFrame z serii NumPy
+                        df_coords = pd.DataFrame({
+                            "X [m]": x_prof,
+                            "Y [m]": y_prof
+                        })
+                        # Wyświetlamy tabelę
+                        st.dataframe(df_coords, use_container_width=True)
                 else:
-                    st.info(f"Dla tego punktu (Profil {row_desc}) nie znaleziono danych w dane_kord.txt")
+                    st.info(f"Brak danych profilu dla indeksu {row_desc}")
