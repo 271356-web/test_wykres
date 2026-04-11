@@ -167,17 +167,21 @@ else:
         # --- PUNKTY (Wyniki) ---
         df_p = load_data(scenariusze[nazwa])
         if df_p is not None:
-            # Dodajemy metadane do customdata, aby móc je wyciągnąć po kliknięciu
-            custom_data = df_p[5] if 5 in df_p.columns else df_p[0]
-            
+            # Resetujemy indeks, aby "index" stał się kolumną z numerem wiersza
+            df_p = df_p.reset_index()
+    
+            # Przygotowujemy dane do przekazania: [numer_wiersza, opcjonalny_tekst]
+            # Jeśli chcesz numerację od 1 (jak w notatniku), użyj: df_p['index'] + 1
+            c_data = df_p[['index', 5]].values if 5 in df_p.columns else df_p[['index', 0]].values
+
             fig.add_trace(go.Scatter(
                 x=df_p[4] if 4 in df_p.columns else df_p[0],
                 y=df_p[0],
                 mode='markers',
                 name=f"{nazwa} (Pkt)",
-                marker=dict(size=6), # Zwiększyłem nieco punkt dla łatwiejszego klikania
-                hovertext=custom_data,
-                customdata=custom_data # To przekażemy do Streamlita
+                customdata=c_data, 
+                # Wyłączamy pokazywanie wiersza w dymku (hover), by był widoczny TYLKO po kliknięciu
+                hovertemplate="B: %{x}<br>Y: %{y}<extra></extra>"
             ))
         
         # --- KRZYWE (Mid, Down, Up) ---
@@ -197,24 +201,25 @@ else:
     # Używamy on_select="rerun", aby Streamlit odświeżył stronę po kliknięciu
     selected_points = st.plotly_chart(fig, use_container_width=True, on_select="rerun", selection_mode="points")
 
-    # 5. Wyświetlanie danych pod wykresem
-    if selected_points and "selection" in selected_points and len(selected_points["selection"]["points"]) > 0:
-        st.subheader("Szczegóły wybranego punktu:")
+   # --- 5. DANE POD WYKRESEM (Tylko po kliknięciu) ---
+    if selected_data and "selection" in selected_data and len(selected_data["selection"]["points"]) > 0:
+        st.success("✅ Dane dla wybranego punktu:")
         
-        for point in selected_points["selection"]["points"]:
-            # Wyciągamy dane z punktu
-            x_val = point['x']
-            y_val = point['y']
+        for point in selected_data["selection"]["points"]:
+            row_num = point['customdata'][0]
+            point_info = point['customdata'][1]
             
-            # Tworzymy ładny widok
+            # Tworzymy ładną tabelkę lub metryki
             col1, col2, col3 = st.columns(3)
-            col1.metric("B [m] (X)", f"{x_val:.4f}")
-            col2.metric("Multiplier (Y)", f"{y_val:.4f}")
+            with col1:
+                st.metric("📍 Numer wiersza w TXT", int(row_num))
+            with col2:
+                st.metric("Oś X (B)", f"{point['x']:.4f}")
+            with col3:
+                st.metric("Oś Y", f"{point['y']:.4e}")
             
-            # Jeśli w customdata była nazwa/opis
-            if 'customdata' in point:
-                st.info(f"**Dodatkowe informacje:** {point['customdata']}")
-            
+            if point_info:
+                st.write(f"**Dodatkowy opis:** {point_info}")
             st.divider()
     else:
-        st.info("Kliknij w punkt na wykresie, aby zobaczyć szczegółowe dane.")
+        st.info("👆 Kliknij konkretny punkt na wykresie powyżej, aby zobaczyć, w którym wierszu pliku się znajduje.")
