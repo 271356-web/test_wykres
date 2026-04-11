@@ -3,34 +3,22 @@ import pandas as pd
 import plotly.graph_objects as go
 import os
 
-# --- KONFIGURACJA ---
+# --- 1. KONFIGURACJA I STYLE ---
 st.set_page_config(layout="wide", page_title="Gravity Analysis")
+
+# Stylowanie metryk, aby były mniejsze i czytelniejsze
+st.markdown("""
+    <style>
+    [data-testid="stMetricValue"] { font-size: 1.8rem; }
+    </style>
+    """, unsafe_allow_html=True)
+
 st.title("Analiza porównawcza scenariuszy")
 
-# 1. Ścieżki do plików
-scenariusze = {
-    "Scenariusz 1 (1m)": "dane/wynik_1m.txt",
-    "Scenariusz 2 (5m)": "dane/wynik_5m.txt",
-    "Scenariusz 3 (10m)": "dane/wynik_10m.txt",
-    "Scenariusz 4 (1m SB)": "dane/wynik_1m_sb.txt",
-    "Scenariusz 5 (5m SB)": "dane/wynik_5m_sb.txt",
-    "Scenariusz 6 (10m SB)": "dane/wynik_10m_sb.txt"
-}
-Krzywe_mid = {k: v.replace('wynik_', 'mid_curve_').replace('.txt', '_mc.txt') for k, v in scenariusze.items()}
-Krzywe_up = {k: v.replace('wynik_', 'up_curve_').replace('.txt', '_mc.txt') for k, v in scenariusze.items()}
-Krzywe_down = {k: v.replace('wynik_', 'down_curve_').replace('.txt', '_mc.txt') for k, v in scenariusze.items()}
-
-# Uwaga: Jeśli Twoje pliki krzywych mają inne nazwy, użyj swoich oryginalnych słowników Krzywe_mid, up, down.
-
-# 2. Sidebar - Wybór scenariuszy
-st.sidebar.header("Wybierz scenariusze")
-wybrane_scenariusze = []
-for n in scenariusze.keys():
-    if st.sidebar.checkbox(n, value=(n == "Scenariusz 1 (1m)")):
-        wybrane_scenariusze.append(n)
-
-# 3. Funkcja wczytywania danych
+# --- 2. FUNKCJE WCZYTYWANIA DANYCH (Z CACHE) ---
+@st.cache_data
 def load_data(file_path):
+    """Wczytuje dane z pliku tekstowego i konwertuje na DataFrame."""
     if not os.path.exists(file_path):
         return None
     try:
@@ -52,56 +40,86 @@ def load_data(file_path):
                 data.append(parts)
         
         df = pd.DataFrame(data)
+        # Konwersja na liczby tam, gdzie to możliwe
         for col in df.columns:
             converted = pd.to_numeric(df[col], errors='coerce')
             if not converted.isna().all():
                 df[col] = converted
         return df
-    except Exception as e:
+    except Exception:
         return None
 
-# --- 4. GŁÓWNA LOGIKA WYKRESU ---
+# --- 3. KONFIGURACJA ŚCIEŻEK ---
+scenariusze = {
+    "Scenariusz 1 (1m)": "dane/wynik_1m.txt",
+    "Scenariusz 2 (5m)": "dane/wynik_5m.txt",
+    "Scenariusz 3 (10m)": "dane/wynik_10m.txt",
+    "Scenariusz 4 (1m SB)": "dane/wynik_1m_sb.txt",
+    "Scenariusz 5 (5m SB)": "dane/wynik_5m_sb.txt",
+    "Scenariusz 6 (10m SB)": "dane/wynik_10m_sb.txt"
+}
+
+# Dynamiczne generowanie ścieżek dla krzywych (z zabezpieczeniem nazw)
+Krzywe_mid = {k: v.replace('wynik_', 'mid_curve_').replace('.txt', '_mc.txt') for k, v in scenariusze.items()}
+Krzywe_up = {k: v.replace('wynik_', 'up_curve_').replace('.txt', '_mc.txt') for k, v in scenariusze.items()}
+Krzywe_down = {k: v.replace('wynik_', 'down_curve_').replace('.txt', '_mc.txt') for k, v in scenariusze.items()}
+
+# --- 4. SIDEBAR - WYBÓR ---
+st.sidebar.header("Ustawienia widoku")
+wybrane_scenariusze = []
+for n in scenariusze.keys():
+    if st.sidebar.checkbox(n, value=(n == "Scenariusz 1 (1m)")):
+        wybrane_scenariusze.append(n)
+
+# --- 5. GŁÓWNA LOGIKA WYKRESU ---
 if not wybrane_scenariusze:
-    st.warning("Zaznacz scenariusz w panelu bocznym.")
+    st.warning("👈 Zaznacz scenariusz w panelu bocznym, aby wyświetlić dane.")
 else:
     fig = go.Figure()
 
     for nazwa in wybrane_scenariusze:
-        # --- 4a. PUNKTY (Wyniki) ---
+        # --- 5a. PUNKTY (Wyniki) ---
         df_p = load_data(scenariusze[nazwa])
         if df_p is not None:
-            # Po modyfikacji load_data: [0]=Nr wiersza, [1]=Y, [5]=X, [6]=Info
-            x_idx = 5 if 5 in df_p.columns else 1
-            y_idx = 1
-            txt_info = df_p[6] if 6 in df_p.columns else ""
+            # Bezpieczne przypisanie kolumn
+            # [0]=Nr wiersza, [1]=Y (Multiplier), [5]=X (B)
+            x_col = 5 if 5 in df_p.columns else 1
+            y_col = 1
+            info_col = 6 if 6 in df_p.columns else None
             
+            # Filtr dla skali logarytmicznej (Y > 0)
+            df_p_plot = df_p[df_p[y_col] > 0].copy()
+            
+            custom_info = df_p_plot[info_col] if info_col is not None else [""] * len(df_p_plot)
+
             fig.add_trace(go.Scatter(
-                x=df_p[x_idx], y=df_p[y_idx],
+                x=df_p_plot[x_col], 
+                y=df_p_plot[y_col],
                 mode='markers',
                 name=f"{nazwa} (Pkt)",
-                marker=dict(size=6),
-                customdata=pd.concat([df_p[0], txt_info], axis=1),
-                hovertemplate="B: %{x}<br>Y: %{y}<extra></extra>"
+                marker=dict(size=8, line=dict(width=1, color='DarkSlateGrey')),
+                customdata=list(zip(df_p_plot[0], custom_info)),
+                hovertemplate="<b>B:</b> %{x}<br><b>Val:</b> %{y}<br><b>Wiersz:</b> %{customdata[0]}<extra></extra>"
             ))
 
-        # --- 4b. FUNKCJA POMOCNICZA DLA KRZYWYCH ---
-        def add_curve(file_dict, label_suffix, color):
+        # --- 5b. KRZYWE (MID, UP, DOWN) ---
+        def add_curve(file_dict, label_suffix, color, dash=None):
             df_c = load_data(file_dict[nazwa])
-            if df_c is not None:
-                # Krzywe CSV zazwyczaj mają: [0]=Nr wiersza, [1]=X, [2]=Y
+            if df_c is not None and 1 in df_c.columns and 2 in df_c.columns:
                 df_c = df_c.sort_values(by=1)
-                df_c_plot = df_c[df_c[2] > 0] # Filtr dla logarytmu
+                df_c_plot = df_c[df_c[2] > 0]
                 fig.add_trace(go.Scatter(
-                    x=df_c_plot[1], y=df_c_plot[2],
+                    x=df_c_plot[1], 
+                    y=df_c_plot[2],
                     mode='lines',
                     name=f"{nazwa} ({label_suffix})",
-                    line=dict(width=1.5, color=color),
-                    hoverinfo='skip' # Krzywe nie przeszkadzają w klikaniu punktów
+                    line=dict(width=1.5, color=color, dash=dash),
+                    hoverinfo='skip'
                 ))
 
         add_curve(Krzywe_mid, "MID", "black")
-        add_curve(Krzywe_up, "UP", "gray")
-        add_curve(Krzywe_down, "DOWN", "gray")
+        add_curve(Krzywe_up, "UP", "gray", dash='dash')
+        add_curve(Krzywe_down, "DOWN", "gray", dash='dash')
 
     fig.update_layout(
         xaxis_title="B [m]",
@@ -109,32 +127,55 @@ else:
         yaxis_type="log",
         template="plotly_white",
         height=700,
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         clickmode='event+select'
     )
 
-    # Rysowanie wykresu
+    # Renderowanie wykresu
     selected_data = st.plotly_chart(fig, use_container_width=True, on_select="rerun")
 
-    # --- 5. WYŚWIETLANIE DANYCH PO KLIKNIĘCIU ---
+    # --- 6. SZCZEGÓŁY PO KLIKNIĘCIU ---
     if selected_data and "selection" in selected_data and len(selected_data["selection"]["points"]) > 0:
-        st.markdown("---")
+        st.divider()
         st.subheader("🔍 Szczegóły wybranego punktu")
         
         for point in selected_data["selection"]["points"]:
             if 'customdata' in point:
-                row_nr = point['customdata'][0]
-                row_desc = point['customdata'][1]
+                row_nr, row_desc = point['customdata']
                 
+                # Wyświetlanie metryk
                 c1, c2, c3 = st.columns(3)
-                with c1:
-                    st.metric("Numer wiersza (TXT)", int(row_nr))
-                with c2:
-                    st.metric("Współrzędna B (X)", f"{point['x']:.4f}")
-                with c3:
-                    st.metric("Multiplier (Y)", f"{point['y']:.4e}")
+                c1.metric("Wiersz w pliku", int(row_nr))
+                c2.metric("Współrzędna B (X)", f"{point['x']:.3f}")
+                c3.metric("Multiplier (Y)", f"{point['y']:.4e}")
                 
                 if row_desc:
-                    st.info(f"**Informacja z pliku:** {row_desc}")
+                    st.info(f"**Dodatkowe info:** {row_desc}")
+
+                # Próba wczytania danych kordynatów
+                df_coords = load_data("dane_kord.txt")
+                if df_coords is not None:
+                    try:
+                        # Próba rzutowania row_desc na int, jeśli tam jest indeks kolumny
+                        idx = int(float(row_desc)) 
+                        col_x = 2 * idx
+                        col_y = 2 * idx + 1
+                        
+                        if col_x in df_coords.columns and col_y in df_coords.columns:
+                            st.write(f"**Profil dla punktu (kolumny {col_x} i {col_y}):**")
+                            # Wykres lokalny
+                            local_fig = go.Figure()
+                            local_fig.add_trace(go.Scatter(
+                                x=df_coords[col_x], 
+                                y=df_coords[col_y], 
+                                mode='lines+markers',
+                                line=dict(color='firebrick')
+                            ))
+                            local_fig.update_layout(height=400, margin=dict(l=20, r=20, t=20, b=20))
+                            st.plotly_chart(local_fig, use_container_width=True)
+                    except (ValueError, TypeError):
+                        st.warning("Nie można dopasować profilu kordynatów (niepoprawny format opisu punktu).")
+                
                 st.divider()
     else:
-        st.info("💡 Kliknij punkt na wykresie, aby zobaczyć jego lokalizację w pliku źródłowym.")
+        st.info("💡 **Wskazówka:** Kliknij dowolny punkt na wykresie powyżej, aby zobaczyć szczegółowe dane profilu.")
