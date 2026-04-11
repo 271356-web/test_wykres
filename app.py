@@ -40,7 +40,7 @@ def get_profile_data(file_path, row_idx):
         # W Pythonie indeks 1 to druga kolumna.
         # Musimy odjąć 1 od Twojego wzoru, aby zachować tę samą logikę.
         
-        p_idx = int(row_idx)
+        p_idx = int(float(str(row_desc).strip()))
         
         cx = (p_idx * 2) 
         cy = (p_idx * 2)
