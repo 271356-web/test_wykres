@@ -55,26 +55,6 @@ def get_profile_data(file_path, row_idx):
         x = dane[:, cx]
         y = dane[:, cy]
         
-        # --- WYPLOTOWANIE WEWNĄTRZ FUNKCJI ---
-        fig_mini = go.Figure()
-        fig_mini.add_trace(go.Scatter(
-            x=x, y=y, 
-            mode='lines+markers', 
-            line=dict(color='red'),
-            name=f"Profil {p_idx}"
-        ))
-        fig_mini.update_layout(
-            title=f"Podgląd profilu (Indeks: {p_idx})",
-            xaxis_title="X",
-            yaxis_title="Y",
-            height=300,
-            margin=dict(l=20, r=20, t=40, b=20)
-        )
-        
-        # Wyświetlamy wykres w Streamlit
-        st.plotly_chart(fig_mini, use_container_width=True)
-        # -------------------------------------
-        
         return x, y
 
     except Exception as e:
