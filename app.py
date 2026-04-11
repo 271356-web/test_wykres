@@ -24,19 +24,17 @@ def load_data(file_path):
         return None
 
 def get_profile_data(file_path, row_desc):
-    """Wczytuje współrzędne profilu na podstawie indeksu z kolumny 6."""
     if not os.path.exists(file_path):
-        st.info(f"Nie widzi")
         return None, None
     try:
-        # Wczytujemy plik kordów (można dodać cache, jeśli plik jest duży)
         df_k = pd.read_csv(file_path, sep=',', header=None, engine='python')
         
-        # Konwersja row_desc na indeks kolumny
+        # Konwersja opisu na liczbę
         p_idx = int(float(str(row_desc).strip()))
+        
+        # OBLICZENIA KOLUMN (sprawdź czy nie powinieneś mieć tu p_idx - 1)
         cx, cy = 2 * p_idx, 2 * p_idx + 1
         
-        # Sprawdzamy, czy takie kolumny istnieją w pliku kordów
         if cx in df_k.columns and cy in df_k.columns:
             return df_k[cx], df_k[cy]
         else:
