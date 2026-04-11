@@ -71,11 +71,30 @@ scenariusze = {
     "Scenariusz 6 (10m SB)": "dane/wynik_10m_sb.txt"
 }
 
-# Automatyczne generowanie ścieżek dla krzywych teoretycznych
-Krzywe_mid = {k: v.replace('wynik_', 'mid_curve_').replace('.txt', '_mc.txt') for k, v in scenariusze.items()}
-Krzywe_up = {k: v.replace('wynik_', 'up_curve_').replace('.txt', '_mc.txt') for k, v in scenariusze.items()}
-Krzywe_down = {k: v.replace('wynik_', 'down_curve_').replace('.txt', '_mc.txt') for k, v in scenariusze.items()}
-
+Krzywe_mid = {
+    "Scenariusz 1 (1m)": "dane/mid_curve_1m_mc.txt",
+    "Scenariusz 2 (5m)": "dane/mid_curve_5m_mc.txt",
+    "Scenariusz 3 (10m)": "dane/mid_curve_10m_mc.txt",
+    "Scenariusz 4 (1m SB)": "dane/mid_curve_1m_sb.txt",
+    "Scenariusz 5 (5m SB)": "dane/mid_curve_5m_sb.txt",
+    "Scenariusz 6 (10m SB)": "dane/mid_curve_10m_sb.txt"
+}
+Krzywe_up = {
+    "Scenariusz 1 (1m)": "dane/up_curve_1m_mc.txt",
+    "Scenariusz 2 (5m)": "dane/up_curve_5m_mc.txt",
+    "Scenariusz 3 (10m)": "dane/up_curve_10m_mc.txt",
+    "Scenariusz 4 (1m SB)": "dane/up_curve_1m_sb.txt",
+    "Scenariusz 5 (5m SB)": "dane/up_curve_5m_sb.txt",
+    "Scenariusz 6 (10m SB)": "dane/up_curve_10m_sb.txt"
+}
+Krzywe_down = {
+    "Scenariusz 1 (1m)": "dane/down_curve_1m_mc.txt",
+    "Scenariusz 2 (5m)": "dane/down_curve_5m_mc.txt",
+    "Scenariusz 3 (10m)": "dane/down_curve_10m_mc.txt",
+    "Scenariusz 4 (1m SB)": "dane/down_curve_1m_sb.txt",
+    "Scenariusz 5 (5m SB)": "dane/down_curve_5m_sb.txt",
+    "Scenariusz 6 (10m SB)": "dane/down_curve_10m_sb.txt"
+}
 # --- 4. PASEK BOCZNY (SIDEBAR) ---
 st.sidebar.header("Wybór scenariuszy")
 wybrane_scenariusze = [n for n in scenariusze.keys() if st.sidebar.checkbox(n, value=(n == "Scenariusz 1 (1m)"))]
