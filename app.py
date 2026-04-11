@@ -27,33 +27,23 @@ def get_profile_data(file_path, row_desc):
     if not os.path.exists(file_path):
         return None, None
     try:
-        df_k = pd.read_csv(file_path, sep=',', header=None, engine='python')
+        # Wczytujemy z header=0, aby nazwy profilów były nagłówkami
+        df_k = pd.read_csv(file_path, sep=',', header=0, engine='python')
         
-        p_idx = int(float(str(row_desc).strip()))
-        cx, cy = 2 * p_idx, 2 * p_idx + 1
+        # Szukamy kolumny, która nazywa się dokładnie tak jak row_desc
+        target_name = str(row_desc).strip()
         
-        if cx in df_k.columns and cy in df_k.columns:
-            x = df_k[cx]
-            y = df_k[cy]
-
-            # --- WYŚWIETLANIE DANYCH WEWNĄTRZ FUNKCJI ---
-            st.write(f"#### Dane wyciągnięte dla profilu {p_idx}:")
-            
-            c1, c2 = st.columns(2)
-            with c1:
-                st.write(f"Kolumna X (indeks {cx})")
-                st.dataframe(x, use_container_width=True)
-            with c2:
-                st.write(f"Kolumna Y (indeks {cy})")
-                st.dataframe(y, use_container_width=True)
-            # --------------------------------------------
-
+        # Zakładamy, że X to kolumna o tej nazwie, a Y to następna
+        if target_name in df_k.columns:
+            col_idx = df_k.columns.get_loc(target_name)
+            x = df_k.iloc[:, col_idx]
+            y = df_k.iloc[:, col_idx + 1]
             return x, y
         else:
-            st.error(f"Nie znaleziono kolumn {cx} i {cy} w pliku kordów.")
+            st.error(f"Nie znaleziono kolumny o nazwie: {target_name}")
             return None, None
     except Exception as e:
-        st.error(f"Błąd wewnątrz funkcji: {e}")
+        st.error(f"Błąd: {e}")
         return None, None
 
 # --- 3. DEFINICJA SCENARIUSZY I ŚCIEŻEK ---
