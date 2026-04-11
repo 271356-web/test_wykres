@@ -42,7 +42,7 @@ def get_profile_data(file_path, row_idx)):
         
         p_idx = int(row_idx)
         
-        cx = (p_idx * 2) - 1
+        cx = (p_idx * 2) 
         cy = (p_idx * 2)
         
         # Wyciągamy kolumny (wszystkie wiersze)
