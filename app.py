@@ -28,20 +28,32 @@ def get_profile_data(file_path, row_desc):
         return None, None
     try:
         df_k = pd.read_csv(file_path, sep=',', header=None, engine='python')
-        st.write("### Podgląd df_k wewnątrz funkcji:")
-        st.dataframe(df_k.head())
         
-        # Konwersja opisu na liczbę
         p_idx = int(float(str(row_desc).strip()))
-        
-        # OBLICZENIA KOLUMN (sprawdź czy nie powinieneś mieć tu p_idx - 1)
         cx, cy = 2 * p_idx, 2 * p_idx + 1
         
         if cx in df_k.columns and cy in df_k.columns:
-            return df_k[cx], df_k[cy]
+            x = df_k[cx]
+            y = df_k[cy]
+
+            # --- WYŚWIETLANIE DANYCH WEWNĄTRZ FUNKCJI ---
+            st.write(f"#### Dane wyciągnięte dla profilu {p_idx}:")
+            
+            c1, c2 = st.columns(2)
+            with c1:
+                st.write(f"Kolumna X (indeks {cx})")
+                st.dataframe(x, use_container_width=True)
+            with c2:
+                st.write(f"Kolumna Y (indeks {cy})")
+                st.dataframe(y, use_container_width=True)
+            # --------------------------------------------
+
+            return x, y
         else:
+            st.error(f"Nie znaleziono kolumn {cx} i {cy} w pliku kordów.")
             return None, None
-    except:
+    except Exception as e:
+        st.error(f"Błąd wewnątrz funkcji: {e}")
         return None, None
 
 # --- 3. DEFINICJA SCENARIUSZY I ŚCIEŻEK ---
