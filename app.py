@@ -159,7 +159,7 @@ else:
                 c2.metric("Multiplier (Oś Y)", f"{point['y']:.4e}")
 
  # Wykres profilu geometrycznego
-                x_prof, y_prof = get_profile_data("dane_kord.txt", row_desc)
+                x_prof, y_prof = get_profile_data("dane_kord.txt", row_nr)
                 
                 if x_prof is not None and y_prof is not None:
                     # 1. Tworzymy wykres
