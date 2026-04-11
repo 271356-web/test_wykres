@@ -111,16 +111,28 @@ else:
 
             # Wykres profilu
             df_k = load_data("dane_kord.txt")
-            if df_k is not None:
-                try:
-                    # Próba wyciągnięcia numeru profilu z opisu
-                    p_idx = int(float(row_desc)) 
-                    # Zakładamy profil 0 -> kolumny 0,1 | profil 1 -> kolumny 2,3
-                    cx, cy = 2 * p_idx, 2 * p_idx + 1
-                    
+
+if selected and "selection" in selected and len(selected["selection"]["points"]) > 0:
+    for point in selected["selection"]["points"]:
+        # Bezpieczne pobieranie customdata
+        custom_data = point.get('customdata', [None, None])
+        row_nr, row_desc = custom_data
+        
+        st.write(f"### Punkt z wiersza: {row_nr}")
+        # ... reszta kodu ...
+
+        if df_k is not None:
+            try:
+                # Bezpieczniejsza konwersja
+                p_idx = int(float(str(row_desc).strip()))
+                cx, cy = 2 * p_idx, 2 * p_idx + 1
+                
+                # Sprawdzenie czy kolumny istnieją w df_k
+                if cx in df_k.columns and cy in df_k.columns:
                     sub = go.Figure()
                     sub.add_trace(go.Scatter(x=df_k[cx], y=df_k[cy], mode='lines+markers'))
-                    sub.update_layout(height=300, title=f"Profil {p_idx}")
-                    st.plotly_chart(sub, use_container_width=True)
-                except:
-                    st.info("Brak dodatkowego profilu dla tego punktu.")
+                    # ...
+                else:
+                    st.warning(f"Brak kolumn dla profilu {p_idx}")
+            except (ValueError, TypeError):
+                st.info("Opis punktu nie jest poprawnym numerem profilu.")
