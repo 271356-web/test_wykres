@@ -18,22 +18,35 @@ st.title("Analiza porównawcza scenariuszy")
 # --- 2. FUNKCJE WCZYTYWANIA DANYCH (Z CACHE) ---
 @st.cache_data
 def load_data(file_path):
+    """Wczytuje dane z pliku tekstowego i konwertuje na DataFrame."""
     if not os.path.exists(file_path):
         return None
     try:
-        # Wczytujemy plik traktując przecinek jako separator
-        # header=None, bo Twoje pliki prawdopodobnie nie mają nazw kolumn w 1. wierszu
-        df = pd.read_csv(file_path, sep=',', header=None, engine='python')
+        with open(file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
         
-        # Dodajemy numer wiersza jako nową kolumnę na początku (indeks od 1)
-        df.insert(0, 'row_nr', range(1, len(df) + 1))
+        data = []
+        for i, line in enumerate(lines):
+            line = line.strip()
+            if not line: continue
+            
+            # i+1 to fizyczny numer wiersza w pliku txt
+            if ',' in line:
+                parts = [i + 1] + line.split(',')
+            else:
+                parts = [i + 1] + line.split(None, 5)
+            
+            if len(parts) >= 3:
+                data.append(parts)
         
-        # Opcjonalnie: usuwamy puste wiersze
-        df = df.dropna(how='all')
-        
+        df = pd.DataFrame(data)
+        # Konwersja na liczby tam, gdzie to możliwe
+        for col in df.columns:
+            converted = pd.to_numeric(df[col], errors='coerce')
+            if not converted.isna().all():
+                df[col] = converted
         return df
-    except Exception as e:
-        st.error(f"Błąd wczytywania {file_path}: {e}")
+    except Exception:
         return None
 
 # --- 3. KONFIGURACJA ŚCIEŻEK ---
