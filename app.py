@@ -153,7 +153,7 @@ else:
     fig.update_layout(
         yaxis_type="log",
         xaxis_title="B [m]",
-        yaxis_title="Multiplier",
+        yaxis_title="G [-]",
         height=600,
         template="plotly_white",
         clickmode='event+select',
@@ -175,8 +175,8 @@ else:
             
             with st.expander(f"Punkt z wiersza {row_nr} (Profil {row_desc})", expanded=True):
                 c1, c2 = st.columns(2)
-                c1.metric("B [m] (Oś X)", f"{point['x']:.2f}")
-                c2.metric("Multiplier (Oś Y)", f"{point['y']:.4e}")
+                c1.metric("B [m] (X Axis)", f"{point['x']:.2f}")
+                c2.metric("Gravity Multiplier (Y Axis)", f"{point['y']:.4e}")
 
  # Wykres profilu geometrycznego
                 x_prof, y_prof = get_profile_data("dane_kord.txt", row_nr)
@@ -194,7 +194,7 @@ else:
                     sub.update_layout(
                         height=500, 
                         template="plotly_white",
-                        title=f"Geometria profilu nr {row_desc} (Skala 1:1)",
+                        title=f"Geometria profilu jaskini {row_desc}",
                         xaxis_title="Odległość [m]",
                         yaxis_title="Wartość [m]",
                         yaxis=dict(scaleanchor="x", scaleratio=1)
