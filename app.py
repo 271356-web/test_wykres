@@ -31,22 +31,8 @@ def get_profile_data(file_path, row_desc):
         
         p_idx = int(float(str(row_desc).strip()))
         cx, cy = 2 * p_idx, 2 * p_idx + 1
-        
-        if cx in df_k.columns and cy in df_k.columns:
-            x = df_k[cx]
-            y = df_k[cy]
-
-            # --- WYŚWIETLANIE DANYCH WEWNĄTRZ FUNKCJI ---
-            st.write(f"#### Dane wyciągnięte dla profilu {p_idx}:")
-            
-            c1, c2 = st.columns(2)
-            with c1:
-                st.write(f"Kolumna X (indeks {cx})")
-                st.dataframe(x, use_container_width=True)
-            with c2:
-                st.write(f"Kolumna Y (indeks {cy})")
-                st.dataframe(y, use_container_width=True)
-            # --------------------------------------------
+        st.write(f"Kolumna X (indeks {cx})")
+        st.write(f"Kolumna Y (indeks {cy})")
 
             return x, y
         else:
