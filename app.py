@@ -36,9 +36,9 @@ def get_profile_data(file_path, row_desc):
         x = df_k[cx]
         y = df_k[cy]
         return x, y
-        else:
-            st.error(f"Nie znaleziono kolumn {cx} i {cy} w pliku kordów.")
-            return None, None
+    else:
+        st.error(f"Nie znaleziono kolumn {cx} i {cy} w pliku kordów.")
+        return None, None
     except Exception as e:
         st.error(f"Błąd wewnątrz funkcji: {e}")
         return None, None
