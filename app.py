@@ -166,7 +166,7 @@ else:
     # --- 6. DETALE (PO KLIKNIĘCIU W PUNKT) ---
     if selected and "selection" in selected and len(selected["selection"]["points"]) > 0:
         st.divider()
-        st.subheader("Advanced analysis of chosen point")
+        st.subheader("Detailed analysis of selected point")
         
         for point in selected["selection"]["points"]:
             # Pobranie danych z customdata zapisanego w ścieżce Scatter
@@ -194,7 +194,7 @@ else:
                     sub.update_layout(
                         height=500, 
                         template="plotly_white",
-                        title=f"Cave geometry {row_desc}",
+                        title=f"Profile geometry {row_desc}",
                         xaxis_title="X [m]",
                         yaxis_title="Y [m]",
                         yaxis=dict(scaleanchor="x", scaleratio=1)
@@ -202,7 +202,7 @@ else:
                     st.plotly_chart(sub, use_container_width=True)
 
                     # 2. DODAJEMY TABELĘ PUNKTÓW
-                    with st.expander("Profile coordinate table"):
+                    with st.expander("Coordinate data table"):
                         # Tworzymy DataFrame z serii NumPy
                         df_coords = pd.DataFrame({
                             "X [m]": x_prof,
