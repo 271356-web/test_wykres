@@ -5,7 +5,7 @@ import os
 
 # --- 1. KONFIGURACJA ---
 st.set_page_config(layout="wide", page_title="Gravity Analysis")
-st.title("Analiza porównawcza scenariuszy")
+st.title("Comparative analysis of scenarios")
 
 # --- 2. FUNKCJE WCZYTYWANIA DANYCH ---
 
@@ -195,8 +195,8 @@ else:
                         height=500, 
                         template="plotly_white",
                         title=f"Cave geometry {row_desc}",
-                        xaxis_title="Odległość [m]",
-                        yaxis_title="Wartość [m]",
+                        xaxis_title="X [m]",
+                        yaxis_title="Y [m]",
                         yaxis=dict(scaleanchor="x", scaleratio=1)
                     )
                     st.plotly_chart(sub, use_container_width=True)
