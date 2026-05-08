@@ -63,45 +63,45 @@ def get_profile_data(file_path, row_idx):
 
 # --- 3. DEFINICJA SCENARIUSZY I ŚCIEŻEK ---
 scenariusze = {
-    "Scenariusz 1 (1m)": "dane/wynik_1m.txt",
-    "Scenariusz 2 (5m)": "dane/wynik_5m.txt",
-    "Scenariusz 3 (10m)": "dane/wynik_10m.txt",
-    "Scenariusz 4 (1m SB)": "dane/wynik_1m_sb.txt",
-    "Scenariusz 5 (5m SB)": "dane/wynik_5m_sb.txt",
-    "Scenariusz 6 (10m SB)": "dane/wynik_10m_sb.txt"
+    "Scenario 1 (1m)": "dane/wynik_1m.txt",
+    "Scenario 2 (5m)": "dane/wynik_5m.txt",
+    "Scenario 3 (10m)": "dane/wynik_10m.txt",
+    "Scenario 4 (1m SB)": "dane/wynik_1m_sb.txt",
+    "Scenario 5 (5m SB)": "dane/wynik_5m_sb.txt",
+    "Scenario 6 (10m SB)": "dane/wynik_10m_sb.txt"
 }
 
 Krzywe_mid = {
-    "Scenariusz 1 (1m)": "dane/mid_curve_1m_mc.txt",
-    "Scenariusz 2 (5m)": "dane/mid_curve_5m_mc.txt",
-    "Scenariusz 3 (10m)": "dane/mid_curve_10m_mc.txt",
-    "Scenariusz 4 (1m SB)": "dane/mid_curve_1m_sb.txt",
-    "Scenariusz 5 (5m SB)": "dane/mid_curve_5m_sb.txt",
-    "Scenariusz 6 (10m SB)": "dane/mid_curve_10m_sb.txt"
+    "Scenario 1 (1m)": "dane/mid_curve_1m_mc.txt",
+    "Scenario 2 (5m)": "dane/mid_curve_5m_mc.txt",
+    "Scenario 3 (10m)": "dane/mid_curve_10m_mc.txt",
+    "Scenario 4 (1m SB)": "dane/mid_curve_1m_sb.txt",
+    "Scenario 5 (5m SB)": "dane/mid_curve_5m_sb.txt",
+    "Scenario 6 (10m SB)": "dane/mid_curve_10m_sb.txt"
 }
 Krzywe_up = {
-    "Scenariusz 1 (1m)": "dane/up_curve_1m_mc.txt",
-    "Scenariusz 2 (5m)": "dane/up_curve_5m_mc.txt",
-    "Scenariusz 3 (10m)": "dane/up_curve_10m_mc.txt",
-    "Scenariusz 4 (1m SB)": "dane/up_curve_1m_sb.txt",
-    "Scenariusz 5 (5m SB)": "dane/up_curve_5m_sb.txt",
-    "Scenariusz 6 (10m SB)": "dane/up_curve_10m_sb.txt"
+    "Scenario 1 (1m)": "dane/up_curve_1m_mc.txt",
+    "Scenario 2 (5m)": "dane/up_curve_5m_mc.txt",
+    "Scenario 3 (10m)": "dane/up_curve_10m_mc.txt",
+    "Scenario 4 (1m SB)": "dane/up_curve_1m_sb.txt",
+    "Scenario 5 (5m SB)": "dane/up_curve_5m_sb.txt",
+    "Scenario 6 (10m SB)": "dane/up_curve_10m_sb.txt"
 }
 Krzywe_down = {
-    "Scenariusz 1 (1m)": "dane/down_curve_1m_mc.txt",
-    "Scenariusz 2 (5m)": "dane/down_curve_5m_mc.txt",
-    "Scenariusz 3 (10m)": "dane/down_curve_10m_mc.txt",
-    "Scenariusz 4 (1m SB)": "dane/down_curve_1m_sb.txt",
-    "Scenariusz 5 (5m SB)": "dane/down_curve_5m_sb.txt",
-    "Scenariusz 6 (10m SB)": "dane/down_curve_10m_sb.txt"
+    "Scenario 1 (1m)": "dane/down_curve_1m_mc.txt",
+    "Scenario 2 (5m)": "dane/down_curve_5m_mc.txt",
+    "Scenario 3 (10m)": "dane/down_curve_10m_mc.txt",
+    "Scenario 4 (1m SB)": "dane/down_curve_1m_sb.txt",
+    "Scenario 5 (5m SB)": "dane/down_curve_5m_sb.txt",
+    "Scenario 6 (10m SB)": "dane/down_curve_10m_sb.txt"
 }
 # --- 4. PASEK BOCZNY (SIDEBAR) ---
-st.sidebar.header("Wybór scenariuszy")
-wybrane_scenariusze = [n for n in scenariusze.keys() if st.sidebar.checkbox(n, value=(n == "Scenariusz 1 (1m)"))]
+st.sidebar.header("Choose a scenario")
+wybrane_scenariusze = [n for n in scenariusze.keys() if st.sidebar.checkbox(n, value=(n == "Scenario 1 (1m)"))]
 
 # --- 5. WYKRES GŁÓWNY ---
 if not wybrane_scenariusze:
-    st.warning("Wybierz przynajmniej jeden scenariusz w panelu bocznym.")
+    st.warning("Select at least one scenario in the sidebar")
 else:
     fig = go.Figure()
 
@@ -166,14 +166,14 @@ else:
     # --- 6. DETALE (PO KLIKNIĘCIU W PUNKT) ---
     if selected and "selection" in selected and len(selected["selection"]["points"]) > 0:
         st.divider()
-        st.subheader("Szczegółowa analiza wybranych punktów")
+        st.subheader("Advanced analysis of chosen point")
         
         for point in selected["selection"]["points"]:
             # Pobranie danych z customdata zapisanego w ścieżce Scatter
             # customdata[0] = row_index, customdata[1] = row_desc (nr profilu)
             row_nr, row_desc = point.get('customdata', [0, "0"])
             
-            with st.expander(f"Punkt z wiersza {row_nr} (Profil {row_desc})", expanded=True):
+            with st.expander(f"Row: {row_nr} (Profil {row_desc})", expanded=True):
                 c1, c2 = st.columns(2)
                 c1.metric("B [m] (X Axis)", f"{point['x']:.2f}")
                 c2.metric("Gravity Multiplier (Y Axis)", f"{point['y']:.4e}")
@@ -194,7 +194,7 @@ else:
                     sub.update_layout(
                         height=500, 
                         template="plotly_white",
-                        title=f"Geometria profilu jaskini {row_desc}",
+                        title=f"Cave geometry {row_desc}",
                         xaxis_title="Odległość [m]",
                         yaxis_title="Wartość [m]",
                         yaxis=dict(scaleanchor="x", scaleratio=1)
@@ -202,7 +202,7 @@ else:
                     st.plotly_chart(sub, use_container_width=True)
 
                     # 2. DODAJEMY TABELĘ PUNKTÓW
-                    with st.expander("Pokaż tabelę współrzędnych profilu"):
+                    with st.expander("Profile coordinate table"):
                         # Tworzymy DataFrame z serii NumPy
                         df_coords = pd.DataFrame({
                             "X [m]": x_prof,
@@ -211,4 +211,4 @@ else:
                         # Wyświetlamy tabelę
                         st.dataframe(df_coords, use_container_width=True)
                 else:
-                    st.info(f"Brak danych profilu dla indeksu {row_desc}")
+                    st.info(f"No profile data for index {row_desc}")
