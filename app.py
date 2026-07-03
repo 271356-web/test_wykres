@@ -63,37 +63,37 @@ def get_profile_data(file_path, row_idx):
 
 # --- 3. DEFINICJA SCENARIUSZY I ŚCIEŻEK ---
 scenariusze = {
-    "Scenario 1 (1m)": "dane/wynik_1m.txt",
-    "Scenario 2 (5m)": "dane/wynik_5m.txt",
-    "Scenario 3 (10m)": "dane/wynik_10m.txt",
-    "Scenario 4 (1m SB)": "dane/wynik_1m_sb.txt",
-    "Scenario 5 (5m SB)": "dane/wynik_5m_sb.txt",
-    "Scenario 6 (10m SB)": "dane/wynik_10m_sb.txt"
+    "Scenario A1 (Roof 1m, strong rock)": "dane/wynik_1m.txt",
+    "Scenario A2 (Roof 5m, strong rock)": "dane/wynik_5m.txt",
+    "Scenario A3 (Roof 10m, strong rock)": "dane/wynik_10m.txt",
+    "Scenario B1 (Roof 1m, weak rock)": "dane/wynik_1m_sb.txt",
+    "Scenario B2 (Roof 5m, weak rock)": "dane/wynik_5m_sb.txt",
+    "Scenario B3 (Roof 10m, weak rock)": "dane/wynik_10m_sb.txt"
 }
 
 Krzywe_mid = {
-    "Scenario 1 (1m)": "dane/mid_curve_1m_mc.txt",
-    "Scenario 2 (5m)": "dane/mid_curve_5m_mc.txt",
-    "Scenario 3 (10m)": "dane/mid_curve_10m_mc.txt",
-    "Scenario 4 (1m SB)": "dane/mid_curve_1m_sb.txt",
-    "Scenario 5 (5m SB)": "dane/mid_curve_5m_sb.txt",
-    "Scenario 6 (10m SB)": "dane/mid_curve_10m_sb.txt"
+    "Scenario A1 (Roof 1m, strong rock)": "dane/mid_curve_1m_mc.txt",
+    "Scenario A2 (Roof 5m, strong rock)": "dane/mid_curve_5m_mc.txt",
+    "Scenario A3 (Roof 10m, strong rock)": "dane/mid_curve_10m_mc.txt",
+    "Scenario B1 (Roof 1m, weak rock)": "dane/mid_curve_1m_sb.txt",
+    "Scenario B2 (Roof 5m, weak rock)": "dane/mid_curve_5m_sb.txt",
+    "Scenario B3 (Roof 10m, weak rock)": "dane/mid_curve_10m_sb.txt"
 }
 Krzywe_up = {
-    "Scenario 1 (1m)": "dane/up_curve_1m_mc.txt",
-    "Scenario 2 (5m)": "dane/up_curve_5m_mc.txt",
-    "Scenario 3 (10m)": "dane/up_curve_10m_mc.txt",
-    "Scenario 4 (1m SB)": "dane/up_curve_1m_sb.txt",
-    "Scenario 5 (5m SB)": "dane/up_curve_5m_sb.txt",
-    "Scenario 6 (10m SB)": "dane/up_curve_10m_sb.txt"
+    "Scenario A1 (Roof 1m, strong rock)": "dane/up_curve_1m_mc.txt",
+    "Scenario A2 (Roof 5m, strong rock)": "dane/up_curve_5m_mc.txt",
+    "Scenario A3 (Roof 10m, strong rock)": "dane/up_curve_10m_mc.txt",
+    "Scenario B1 (Roof 1m, weak rock)": "dane/up_curve_1m_sb.txt",
+    "Scenario B2 (Roof 5m, weak rock)": "dane/up_curve_5m_sb.txt",
+    "Scenario B3 (Roof 10m, weak rock)": "dane/up_curve_10m_sb.txt"
 }
 Krzywe_down = {
-    "Scenario 1 (1m)": "dane/down_curve_1m_mc.txt",
-    "Scenario 2 (5m)": "dane/down_curve_5m_mc.txt",
-    "Scenario 3 (10m)": "dane/down_curve_10m_mc.txt",
-    "Scenario 4 (1m SB)": "dane/down_curve_1m_sb.txt",
-    "Scenario 5 (5m SB)": "dane/down_curve_5m_sb.txt",
-    "Scenario 6 (10m SB)": "dane/down_curve_10m_sb.txt"
+    "Scenario A1 (Roof 1m, strong rock)": "dane/down_curve_1m_mc.txt",
+    "Scenario A2 (Roof 5m, strong rock)": "dane/down_curve_5m_mc.txt",
+    "Scenario A3 (Roof 10m, strong rock)": "dane/down_curve_10m_mc.txt",
+    "Scenario B1 (Roof 1m, weak rock)": "dane/down_curve_1m_sb.txt",
+    "Scenario B2 (Roof 5m, weak rock)": "dane/down_curve_5m_sb.txt",
+    "Scenario B3 (Roof 10m, weak rock)": "dane/down_curve_10m_sb.txt"
 }
 # --- 4. PASEK BOCZNY (SIDEBAR) ---
 st.sidebar.header("Choose a scenario")
